@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NetSereno - Detector de Phishing</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-900 text-white font-sans">
+
+    <!-- Navbar -->
+    <nav class="bg-gray-800 p-4 border-b border-blue-900">
+        <div class="container mx-auto flex justify-between items-center">
+            <div class="flex items-center space-x-2">
+                <i class="fas fa-lantern text-yellow-400 text-2xl"></i>
+                <span class="text-xl font-bold tracking-wider">NET<span class="text-blue-400">SERENO</span></span>
+            </div>
+            <a href="https://netsereno.com" class="text-sm text-gray-400 hover:text-white">Volver a la web</a>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container mx-auto px-4 py-10 max-w-4xl">
+        
+        <div class="text-center mb-10">
+            <h1 class="text-4xl font-bold mb-4">Ilumina tus emails sospechosos</h1>
+            <p class="text-gray-400">Sube un archivo (.eml, .txt) o pega el texto del correo. <br>Nuestro Sereno digital analizará si es una trampa.</p>
+        </div>
+
+        <!-- Input Section -->
+        <div class="bg-gray-800 p-8 rounded-xl shadow-lg border border-gray-700" id="input-section">
+            
+            <!-- Tabs -->
+            <div class="flex space-x-4 mb-6 border-b border-gray-700 pb-2">
+                <button onclick="switchTab('file')" id="tab-file" class="text-blue-400 font-semibold border-b-2 border-blue-400 pb-1">Subir Archivo</button>
+                <button onclick="switchTab('text')" id="tab-text" class="text-gray-400 hover:text-white font-semibold pb-1">Pegar Texto</button>
+            </div>
+
+            <form id="analyze-form">
+                <!-- File Input -->
+                <div id="file-input" class="mb-6">
+                    <label class="block mb-2 text-sm font-medium text-gray-300">Archivo de correo (.eml)</label>
+                    <input type="file" name="file" accept=".eml,.txt" class="block w-full text-sm text-gray-400
+                        file:mr-4 file:py-2 file:px-4
+                        file:rounded-full file:border-0
+                        file:text-sm file:font-semibold
+                        file:bg-blue-900 file:text-blue-200
+                        hover:file:bg-blue-800 cursor-pointer bg-gray-700 rounded-lg border border-gray-600">
+                </div>
+
+                <!-- Text Input -->
+                <div id="text-input" class="mb-6 hidden">
+                    <label class="block mb-2 text-sm font-medium text-gray-300">Contenido del correo</label>
+                    <textarea name="text_content" rows="6" class="block p-2.5 w-full text-sm text-white bg-gray-700 rounded-lg border border-gray-600 focus:ring-blue-500 focus:border-blue-500" placeholder="Pega aquí el asunto y el cuerpo del mensaje..."></textarea>
+                </div>
+
+                <!-- Privacy Notice -->
+                <div class="flex items-start mb-6">
+                    <div class="flex items-center h-5">
+                        <input id="privacy" type="checkbox" required class="w-4 h-4 border border-gray-300 rounded bg-gray-50 bg-gray-700 border-gray-600 focus:ring-3 focus:ring-blue-600 ring-offset-gray-800">
+                    </div>
+                    <label for="privacy" class="ml-2 text-sm font-medium text-gray-400">Entiendo que el archivo se procesa en memoria y se elimina inmediatamente. NetSereno no guarda mis datos.</label>
+                </div>
+
+                <button type="submit" id="submit-btn" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center bg-blue-600 hover:bg-blue-700 focus:ring-blue-800">
+                    <i class="fas fa-search mr-2"></i> Analizar Ahora
+                </button>
+            </form>
+        </div>
+
+        <!-- Loading Animation -->
+        <div id="loading" class="hidden text-center py-10">
+            <div class="animate-pulse">
+                <i class="fas fa-lantern text-6xl text-yellow-500 mb-4"></i>
+                <p class="text-xl text-gray-300">El Sereno está revisando las sombras...</p>
+            </div>
+        </div>
+
+        <!-- Results Section -->
+        <div id="results" class="hidden bg-gray-800 p-8 rounded-xl shadow-lg border border-gray-700 mt-8">
+            <div class="grid md:grid-cols-2 gap-8 items-center">
+                <!-- Chart -->
+                <div class="relative h-64 w-full flex justify-center items-center">
+                    <canvas id="scoreChart"></canvas>
+                    <div class="absolute text-center">
+                        <span id="score-display" class="text-4xl font-bold">0%</span>
+                        <p class="text-xs text-gray-400">Probabilidad Phishing</p>
+                    </div>
+                </div>
+                
+                <!-- Text Details -->
+                <div>
+                    <h2 id="verdict-display" class="text-2xl font-bold mb-2 text-red-500">PELIGROSO</h2>
+                    <p id="summary-display" class="text-gray-300 mb-4">Resumen del análisis...</p>
+                    
+                    <h3 class="font-bold text-white mb-2">¿Por qué?</h3>
+                    <ul id="reasons-list" class="list-disc list-inside text-gray-400 space-y-1 mb-6">
+                        <!-- JS will populate this -->
+                    </ul>
+
+                    <button onclick="downloadPDF()" class="text-gray-900 bg-yellow-400 hover:bg-yellow-500 focus:ring-4 focus:outline-none focus:ring-yellow-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center">
+                        <i class="fas fa-file-pdf mr-2"></i> Descargar Informe
+                    </button>
+                </div>
+            </div>
+            
+            <!-- CTA -->
+            <div class="mt-8 p-4 bg-blue-900/30 border border-blue-800 rounded-lg text-center">
+                <p class="text-sm text-blue-200">¿Preocupado por la seguridad de tu empresa? <a href="https://netsereno.com" class="font-bold underline hover:text-white">Contrata una formación de NetSereno.</a></p>
+            </div>
+        </div>
+
+    </div>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>

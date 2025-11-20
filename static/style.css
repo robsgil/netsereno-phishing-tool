@@ -1,0 +1,69 @@
+/* static/style.css */
+
+/* Import a clean, tech-oriented font */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: #111827; /* Ensures background matches Tailwind gray-900 */
+}
+
+/* --- Custom Cyber Scrollbar --- */
+/* This gives the app a polished, professional software look */
+::-webkit-scrollbar {
+    width: 10px;
+}
+
+::-webkit-scrollbar-track {
+    background: #1f2937; /* Dark gray track */
+}
+
+::-webkit-scrollbar-thumb {
+    background: #1e40af; /* NetSereno Blue */
+    border-radius: 5px;
+    border: 2px solid #1f2937;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #3b82f6; /* Lighter blue on hover */
+}
+
+/* --- The Sereno Lantern Effect --- */
+/* Adds a glowing aura to the lantern icon */
+.fa-lantern {
+    filter: drop-shadow(0 0 8px rgba(234, 179, 8, 0.6)); /* Yellow glow */
+    transition: filter 0.3s ease;
+}
+
+/* --- Custom Animations --- */
+
+/* A swinging animation for the lantern while loading */
+@keyframes swing {
+    0% { transform: rotate(15deg); }
+    50% { transform: rotate(-15deg); }
+    100% { transform: rotate(15deg); }
+}
+
+/* Add this class to the lantern icon in the loading div in index.html if you want it to swing */
+/* currently index.html uses 'animate-pulse', you can change it to 'animate-swing' */
+.animate-swing {
+    animation: swing 2s infinite ease-in-out;
+    display: inline-block;
+    transform-origin: top center;
+}
+
+/* --- Form Tweaks --- */
+textarea {
+    resize: vertical; /* Allow vertical resizing only */
+    min-height: 120px;
+}
+
+/* Smooth fade in for results */
+#results {
+    animation: fadeIn 0.5s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
