@@ -17,7 +17,7 @@ app = Flask(__name__)
 
 # Configure Gemini
 genai.configure(api_key=os.getenv("GOOGLE_API_KEY"))
-model = genai.GenerativeModel('gemini-1.5-flash')
+model = genai.GenerativeModel('gemini-2.5-flash')
 
 # --- HELPER FUNCTIONS ---
 
@@ -168,3 +168,4 @@ def download_report():
 if __name__ == '__main__':
 
     app.run(debug=False)
+
